@@ -42,6 +42,32 @@ def dashboard():
                             threshold=CFG.HUB_OFFLINE_THRESHOLD_SECONDS)
 
 
+@admin_bp.route("/account", methods=["GET", "POST"])
+@admin_required
+def account():
+    """Self-Service Passwort-Aenderung - bewusst als erste Ergaenzung nach
+    dem ersten Live-Deploy, da die Seed-Zugangsdaten oeffentlich im Deploy-
+    Log sichtbar waren und sofort geaendert werden sollten."""
+    if request.method == "POST":
+        current_pw = request.form.get("current_password", "")
+        new_pw = request.form.get("new_password", "")
+        confirm_pw = request.form.get("confirm_password", "")
+
+        if not current_user.check_password(current_pw):
+            flash("Aktuelles Passwort ist falsch.")
+        elif len(new_pw) < 8:
+            flash("Neues Passwort muss mindestens 8 Zeichen haben.")
+        elif new_pw != confirm_pw:
+            flash("Die beiden neuen Passwoerter stimmen nicht ueberein.")
+        else:
+            current_user.set_password(new_pw)
+            db.session.commit()
+            flash("Passwort erfolgreich geaendert.")
+            return redirect(url_for("admin_bp.dashboard"))
+
+    return render_template("admin/account.html")
+
+
 @admin_bp.route("/machine/<int:machine_id>/activate", methods=["POST"])
 @admin_required
 def machine_activate(machine_id):

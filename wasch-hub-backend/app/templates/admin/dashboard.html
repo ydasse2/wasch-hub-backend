@@ -14,6 +14,7 @@
     {% if current_user.role == 'superadmin' %}
     <a href="{{ url_for('admin_bp.customers') }}" style="margin-right:16px;">Kunden</a>
     {% endif %}
+    <a href="{{ url_for('admin_bp.account') }}" style="margin-right:16px;">Passwort aendern</a>
     <a href="{{ url_for('admin_bp.logout') }}">Abmelden</a>
   </div>
 </div>

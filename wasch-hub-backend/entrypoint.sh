@@ -15,4 +15,4 @@ echo "--> Seed-Daten pruefen/anlegen..."
 python scripts/seed.py
 
 echo "--> Starte Server..."
-exec gunicorn --bind 0.0.0.0:8000 --workers 4 wsgi:app
+exec gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 4 wsgi:app
