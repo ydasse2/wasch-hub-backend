@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ customer.name }} - Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<a class="back-link" href="{{ url_for('admin_bp.customers') }}">&larr; zurueck zur Kundenliste</a>
+<h1>{{ customer.name }}</h1>
+<p class="hint">{{ customer.phone }} · Kunde seit {{ customer.created_at.strftime('%Y-%m-%d') }}</p>
+
+<div class="balance-card">
+  <div>Aktuelles Guthaben</div>
+  <div class="balance">{{ "%.2f"|format(customer.balance_cents / 100) }}</div>
+
+  {% with messages = get_flashed_messages() %}
+    {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+
+  <form method="post" action="{{ url_for('admin_bp.customer_adjust', customer_id=customer.id) }}" style="margin-top:16px;">
+    <label style="font-size:13px;">Manuelle Korrektur (Centimes, negativ fuer Abzug)</label>
+    <input type="number" name="amount_cents" required
+           style="width:100%; padding:8px; margin:6px 0; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+    <label style="font-size:13px;">Grund (Pflichtfeld, landet im Ledger)</label>
+    <input type="text" name="note" required placeholder="z.B. Barzahlung erfasst, Kulanz nach Stoerung"
+           style="width:100%; padding:8px; margin:6px 0; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+    <button class="primary" type="submit">Korrektur buchen</button>
+  </form>
+</div>
+
+<h2>Waschgaenge</h2>
+<table>
+<tr><th>Datum</th><th>Maschine</th><th>Preis</th><th>Status</th></tr>
+{% for s in sessions %}
+<tr>
+  <td>{{ s.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+  <td>{{ s.machine.label if s.machine else '-' }}</td>
+  <td>{{ "%.2f"|format(s.price_cents / 100) }}</td>
+  <td><span class="status-pill pill-{{ s.status }}">{{ s.status }}</span></td>
+</tr>
+{% else %}
+<tr><td colspan="4">Noch keine Waschgaenge.</td></tr>
+{% endfor %}
+</table>
+
+<h2 style="margin-top:24px;">Guthaben-Bewegungen</h2>
+<table>
+<tr><th>Datum</th><th>Betrag</th><th>Typ</th><th>Saldo danach</th><th>Notiz</th></tr>
+{% for t in wallet_txs %}
+<tr>
+  <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+  <td>{{ "%.2f"|format(t.amount_cents / 100) }}</td>
+  <td>{{ t.type }}</td>
+  <td>{{ "%.2f"|format(t.balance_after_cents / 100) }}</td>
+  <td>{{ t.note or t.reference or '' }}</td>
+</tr>
+{% else %}
+<tr><td colspan="5">Noch keine Bewegungen.</td></tr>
+{% endfor %}
+</table>
+</body>
+</html>

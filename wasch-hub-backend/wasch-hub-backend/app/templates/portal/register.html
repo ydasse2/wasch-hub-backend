@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrieren - Wasch-Hub</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="login-wrap">
+<form method="post" class="login-box">
+  <h2>Konto erstellen</h2>
+  {% with messages = get_flashed_messages() %}
+    {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  <label>Name</label>
+  <input type="text" name="name" required>
+  <label>Telefonnummer</label>
+  <input type="tel" name="phone" required placeholder="+237...">
+  <label>Passwort (min. 6 Zeichen)</label>
+  <input type="password" name="password" required minlength="6">
+  <button class="primary" type="submit">Konto erstellen</button>
+  <p style="text-align:center; font-size:13px; margin-top:14px;">
+    Schon registriert? <a href="{{ url_for('portal_bp.login') }}">Anmelden</a>
+  </p>
+</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% if session.status == 'active' %}<meta http-equiv="refresh" content="3">{% endif %}
+<title>Waschgang beobachten</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<a class="back-link" href="{{ url_for('portal_bp.dashboard') }}">&larr; zurueck</a>
+
+<div class="balance-card" style="max-width:360px;">
+  <h2>{{ session.machine.label if session.machine else '' }}</h2>
+
+  {% if session.status == 'active' %}
+    {% if session.machine.actual_state == 'running' %}
+      <span class="status-pill pill-active">läuft</span>
+      <p style="margin-top:14px;">Aktuelle Leistung: <strong>{{ session.machine.power_w }} W</strong></p>
+      <p class="meta">Seite aktualisiert sich automatisch alle 3s.</p>
+    {% else %}
+      <span class="status-pill pill-active">wird gestartet…</span>
+      <p class="meta">Warte auf Bestaetigung vom Geraet. Falls das laenger als 1-2 Minuten
+         dauert, bitte beim Personal vor Ort melden.</p>
+    {% endif %}
+  {% elif session.status == 'completed' %}
+    <span class="status-pill pill-completed">fertig</span>
+    <p style="margin-top:14px;">Dein Waschgang ist abgeschlossen.</p>
+  {% elif session.status == 'cancelled' %}
+    <span class="status-pill pill-cancelled">abgebrochen</span>
+    <p style="margin-top:14px;">Dieser Waschgang wurde abgebrochen. Bei Fragen bitte
+       das Personal vor Ort kontaktieren.</p>
+  {% endif %}
+
+  <p class="meta" style="margin-top:16px;">
+    Gestartet: {{ session.started_at.strftime('%H:%M:%S') }}<br>
+    {% if session.ended_at %}Beendet: {{ session.ended_at.strftime('%H:%M:%S') }}<br>{% endif %}
+    Preis: {{ "%.2f"|format(session.price_cents / 100) }}
+  </p>
+</div>
+</body>
+</html>

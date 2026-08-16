@@ -1,0 +1,37 @@
+version: "3.9"
+
+# Startet Backend + Postgres zusammen - so testest du lokal schon gegen
+# dieselbe Datenbank-Art, die in Produktion laeuft (statt SQLite lokal,
+# Postgres live - Ueberraschungen beim Deploy vermeiden).
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: wasch_hub
+      POSTGRES_USER: wasch_hub
+      POSTGRES_PASSWORD: change-me-locally
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wasch_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLASK_ENV: production
+      SECRET_KEY: change-me-in-production
+      DATABASE_URL: postgresql://wasch_hub:change-me-locally@db:5432/wasch_hub
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:

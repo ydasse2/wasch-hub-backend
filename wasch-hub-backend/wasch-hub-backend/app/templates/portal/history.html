@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein Verlauf</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<a class="back-link" href="{{ url_for('portal_bp.dashboard') }}">&larr; zurueck</a>
+<h1>Mein Verlauf</h1>
+
+<h2>Waschgaenge</h2>
+<table>
+<tr><th>Datum</th><th>Maschine</th><th>Preis</th><th>Status</th></tr>
+{% for s in sessions %}
+<tr>
+  <td>{{ s.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+  <td>{{ s.machine.label if s.machine else '-' }}</td>
+  <td>{{ "%.2f"|format(s.price_cents / 100) }}</td>
+  <td><span class="status-pill pill-{{ s.status }}">{{ s.status }}</span></td>
+</tr>
+{% else %}
+<tr><td colspan="4">Noch keine Waschgaenge.</td></tr>
+{% endfor %}
+</table>
+
+<h2 style="margin-top:24px;">Guthaben-Bewegungen</h2>
+<table>
+<tr><th>Datum</th><th>Betrag</th><th>Typ</th><th>Saldo danach</th></tr>
+{% for t in wallet_txs %}
+<tr>
+  <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+  <td>{{ "%.2f"|format(t.amount_cents / 100) }}</td>
+  <td>{{ t.type }}</td>
+  <td>{{ "%.2f"|format(t.balance_after_cents / 100) }}</td>
+</tr>
+{% else %}
+<tr><td colspan="4">Noch keine Bewegungen.</td></tr>
+{% endfor %}
+</table>
+</body>
+</html>
