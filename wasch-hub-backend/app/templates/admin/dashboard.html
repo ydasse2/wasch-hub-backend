@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="5">
+<title>Wasch-Hub Dashboard (Admin)</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="topbar">
+  <h1>Wasch-Hub Dashboard (Admin)</h1>
+  <div>
+    {% if current_user.role == 'superadmin' %}
+    <a href="{{ url_for('admin_bp.customers') }}" style="margin-right:16px;">Kunden</a>
+    {% endif %}
+    <a href="{{ url_for('admin_bp.logout') }}">Abmelden</a>
+  </div>
+</div>
+<p class="hint">Nur fuer internes Personal sichtbar - Kunden haben keinen Zugriff auf diese Seite.</p>
+
+{% for hub in hubs %}
+<div class="hub-section">
+  <div class="hub-title">
+    <span class="dot {{ 'dot-online' if hub.is_online(threshold) else 'dot-offline' }}"></span>
+    {{ hub.name }} <span style="color:#888; font-weight:normal;">({{ hub.location or hub.country }})</span>
+  </div>
+  <div class="machines">
+    {% for m in hub.machines %}
+    <div class="card">
+      <strong>{{ m.label }}</strong>
+      <form method="post" action="{{ url_for('admin_bp.machine_stop' if m.actual_state == 'running' else 'admin_bp.machine_activate', machine_id=m.id) }}">
+        <button class="button {{ 'button-on' if m.actual_state == 'running' else 'button-off' }}" type="submit">
+          {{ m.label }} {{ 'ON' if m.actual_state == 'running' else 'OFF' }}
+        </button>
+      </form>
+      <div class="meta">
+        {{ m.power_w }} W · Soll: {{ m.desired_state }}<br>
+        Meldung: {{ m.last_report_at.strftime('%H:%M:%S') if m.last_report_at else 'nie' }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<p>Kein Hub zugewiesen. Bei einem Superadmin melden.</p>
+{% endfor %}
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein Wasch-Hub</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="topbar">
+  <h1>Hallo, {{ current_user.name }}</h1>
+  <div>
+    <a href="{{ url_for('portal_bp.history') }}" style="margin-right:16px;">Verlauf</a>
+    <a href="{{ url_for('portal_bp.logout') }}">Abmelden</a>
+  </div>
+</div>
+
+<div class="balance-card">
+  <div>Mein Guthaben</div>
+  <div class="balance">{{ "%.2f"|format(current_user.balance_cents / 100) }}</div>
+  {% with messages = get_flashed_messages() %}
+    {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  <form method="post" action="{{ url_for('portal_bp.topup_demo') }}" class="amount-buttons">
+    <button type="submit" name="amount_cents" value="50000">+500</button>
+    <button type="submit" name="amount_cents" value="100000">+1000</button>
+    <button type="submit" name="amount_cents" value="200000">+2000</button>
+  </form>
+  <p class="meta">Demo-Aufladung ohne echte Zahlung - in der spaeteren Version ersetzt
+     eine echte Mobile-Money-Zahlung diesen Knopf.</p>
+</div>
+
+{% if active_session %}
+<div class="balance-card" style="border:2px solid #1E9E8B;">
+  <strong>Du hast gerade einen laufenden Waschgang</strong><br>
+  <a href="{{ url_for('portal_bp.session_detail', session_id=active_session.id) }}">Jetzt beobachten &rarr;</a>
+</div>
+{% endif %}
+
+<h2>Verfuegbare Standorte</h2>
+{% for hub in hubs %}
+<div class="hub-section">
+  <div class="hub-title">{{ hub.name }} <span style="color:#888; font-weight:normal;">({{ hub.location }})</span></div>
+  <div class="machines">
+    {% for m in hub.machines %}
+    <div class="card">
+      <strong>{{ m.label }}</strong>
+      <div class="meta">{{ "%.2f"|format(m.price_cents / 100) }} pro Waschgang</div>
+      {% if m.actual_state == 'running' %}
+        <button class="button button-secondary" disabled>Belegt</button>
+      {% else %}
+        <form method="post" action="{{ url_for('portal_bp.start', machine_id=m.id) }}">
+          <button class="button button-on" type="submit"
+            {% if current_user.balance_cents < m.price_cents %}disabled{% endif %}>
+            Waschgang starten
+          </button>
+        </form>
+        {% if current_user.balance_cents < m.price_cents %}
+        <div class="meta" style="color:#c0453a;">Guthaben reicht nicht</div>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<p>Aktuell kein Standort verfuegbar.</p>
+{% endfor %}
+</body>
+</html>
