@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin-Anmeldung</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="login-wrap">
+<form method="post" class="login-box">
+  <h2>Admin-Anmeldung</h2>
+  {% with messages = get_flashed_messages() %}
+    {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  <label>Benutzername</label>
+  <input type="text" name="username" required>
+  <label>Passwort</label>
+  <input type="password" name="password" required>
+  <button class="primary" type="submit">Anmelden</button>
+</form>
+</div>
+</body>
+</html>

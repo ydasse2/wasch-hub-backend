@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunden - Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<a class="back-link" href="{{ url_for('admin_bp.dashboard') }}">&larr; zurueck zum Dashboard</a>
+<div class="topbar">
+  <h1>Kunden</h1>
+</div>
+
+<form method="get" style="margin-bottom:16px;">
+  <input type="text" name="q" value="{{ q }}" placeholder="Suche nach Name oder Telefonnummer"
+         style="padding:8px; width:280px; border:1px solid #ccc; border-radius:6px;">
+  <button type="submit" style="padding:8px 14px; border:none; background:#2E75B6; color:white; border-radius:6px;">Suchen</button>
+</form>
+
+<table>
+<tr><th>Name</th><th>Telefon</th><th>Guthaben</th><th>Registriert</th><th></th></tr>
+{% for c in customers %}
+<tr>
+  <td>{{ c.name }}</td>
+  <td>{{ c.phone }}</td>
+  <td>{{ "%.2f"|format(c.balance_cents / 100) }}</td>
+  <td>{{ c.created_at.strftime('%Y-%m-%d') }}</td>
+  <td><a href="{{ url_for('admin_bp.customer_detail', customer_id=c.id) }}">Details</a></td>
+</tr>
+{% else %}
+<tr><td colspan="5">Keine Kunden gefunden.</td></tr>
+{% endfor %}
+</table>
+</body>
+</html>
